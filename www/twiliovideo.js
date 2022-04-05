@@ -2,6 +2,7 @@ var exec = require('cordova/exec');
 
 var TwilioVideo = function() {};
 
+
 TwilioVideo.openRoom = function(token, room, eventCallback, config) {
     config = config != null ? config : null;
     exec(function(e) {
