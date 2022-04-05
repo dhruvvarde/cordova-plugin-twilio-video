@@ -25,11 +25,48 @@ NSString *const ATTACHMENT = @"ATTACHMENT";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    // UIView *picker = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 100)];
+    // picker.backgroundColor=[UIColor whiteColor];
+    
+    // UIImageView *imageImg = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"adma_logo"]];
+    // imageImg.frame = CGRectMake(20,50,30,30);
+    // [picker addSubview:imageImg];
+    
+    
+    
+    // UIImageView *imageImg1 = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"adma_logo"]];
+    // imageImg1.frame = CGRectMake(self.view.frame.size.width - 100, 50,30,30);
+    // [picker addSubview:imageImg1];
+    
+    // [self.view addSubview: picker];
+
+    
+//
 
     [[TwilioVideoManager getInstance] setActionDelegate:self];
 
     [[TwilioVideoManager getInstance] publishEvent: OPENED];
-    [self.navigationController setNavigationBarHidden:YES animated:NO];
+//    [self.navigationController setNavigationBarHidden:NO animated:NO];
+//    [self.navigationController.navigationBar setFrame:CGRectMake(0, 0, self.view.frame.size.width,350.0)];
+    
+    
+    /* NAVIGATION */
+//    UINavigationBar* navbar = [[UINavigationBar alloc] init];
+//    [navbar setFrame:CGRectMake(0, 35, self.view.frame.size.width, 350.0)];
+//
+//
+//    UINavigationItem* navItem = [[UINavigationItem alloc] initWithTitle:@"ADMA" ];
+//
+//
+//    [navbar setTitleTextAttributes:
+//       @{NSForegroundColorAttributeName:[UIColor blackColor]}];
+//
+//     [navbar setBarTintColor:[UIColor whiteColor]];
+//    [navbar setItems:@[navItem]];
+//    [self.view addSubview:navbar];
+    
+
 
     [self logMessage:[NSString stringWithFormat:@"TwilioVideo v%@", [TwilioVideoSDK sdkVersion]]];
 
@@ -42,12 +79,25 @@ NSString *const ATTACHMENT = @"ATTACHMENT";
 
     // Disconnect and mic button will be displayed when client is connected to a room.
     self.micButton.hidden = YES;
+    [self.micButton setFrame:CGRectMake(0, 350, 50, 50)];
     [self.micButton setImage:[UIImage imageNamed:@"mic"] forState: UIControlStateNormal];
     [self.micButton setImage:[UIImage imageNamed:@"no_mic"] forState: UIControlStateSelected];
+    self.micButton.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.5];
+    
     [self.videoButton setImage:[UIImage imageNamed:@"video"] forState: UIControlStateNormal];
     [self.videoButton setImage:[UIImage imageNamed:@"no_video"] forState: UIControlStateSelected];
+    self.videoButton.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.5];
+    
+    
+    
     [self.attachmentButton setImage:[UIImage imageNamed:@"attach"] forState: UIControlStateSelected];
+    self.attachmentButton.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.5];
+    
     [self.chatButton setImage:[UIImage imageNamed:@"chat"] forState: UIControlStateSelected];
+    self.chatButton.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.5];
+    
+    
+    self.cameraSwitchButton.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.5];
 
     // Customize button colors
     NSString *primaryColor = [self.config primaryColorHex];
@@ -57,7 +107,8 @@ NSString *const ATTACHMENT = @"ATTACHMENT";
 
     NSString *secondaryColor = [self.config secondaryColorHex];
     if (secondaryColor != NULL) {
-        self.micButton.backgroundColor = [TwilioVideoConfig colorFromHexString:secondaryColor];
+//        245, 246, 253, 0.64
+//        self.micButton.backgroundColor = [UIColor colorWithRed:255 green:255 blue:255 alpha:0.5]; //[TwilioVideoConfig colorFromHexString:secondaryColor];
         self.videoButton.backgroundColor = [TwilioVideoConfig colorFromHexString:secondaryColor];
         self.cameraSwitchButton.backgroundColor = [TwilioVideoConfig colorFromHexString:secondaryColor];
         self.attachmentButton.backgroundColor = [TwilioVideoConfig colorFromHexString:secondaryColor];
@@ -429,6 +480,7 @@ NSString *const ATTACHMENT = @"ATTACHMENT";
         self.localVideoTrack = [TVILocalVideoTrack trackWithSource:self.camera
                                                              enabled:YES
                                                                 name:@"Camera"];
+        
         if (!self.localVideoTrack) {
             [self logMessage:@"Failed to add video track"];
         } else {
