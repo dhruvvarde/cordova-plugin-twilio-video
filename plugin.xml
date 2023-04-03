@@ -59,6 +59,15 @@
             </pods>
         </podspec>
 
+<framework src="Socket.IO-Client-Swift" type="podspec" spec="16.0"/>
+        <podspec>
+            <config>
+                <source url="https://cdn.cocoapods.org/"/>
+            </config>
+            <pods>
+                <pod name="Socket.IO-Client-Swift" spec="16.0"/>
+            </pods>
+        </podspec>
     </platform>
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
