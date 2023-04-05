@@ -77,13 +77,13 @@
             </pods>
         </podspec>
 
-<framework src="socket.IO" type="podspec" spec="0.5"/>
+<framework src="Socket.IO-Client-Swift" type="podspec" spec="16.0"/>
         <podspec>
             <config>
                 <source url="https://cdn.cocoapods.org/"/>
             </config>
             <pods>
-                <pod name="socket.IO" spec="0.5"/>
+                <pod name="Socket.IO-Client-Swift" spec="16.0"/>
             </pods>
         </podspec>
     </platform>
