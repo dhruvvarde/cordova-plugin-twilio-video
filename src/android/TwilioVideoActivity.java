@@ -154,7 +154,7 @@ public class TwilioVideoActivity extends AppCompatActivity implements org.apache
     private VideoRenderer localVideoView;
     String imageFilePath;
     private Channel mCurrentChatChannel;
-    private boolean isCCEnable = true;
+    private boolean isCCEnable = false;
 
 
     @Override
@@ -959,11 +959,14 @@ public class TwilioVideoActivity extends AppCompatActivity implements org.apache
                 ccActionFab.setImageDrawable(ContextCompat.getDrawable(
                         TwilioVideoActivity.this, icon));
 
+                txtCaption.setText("");
                 if (!isCCEnable){
                     txtCaption.setVisibility(View.GONE);
                 }else {
                     txtCaption.setVisibility(View.VISIBLE);
+
                 }
+
 
                 JSONObject liveCaptionJson = new JSONObject();
                 try {
@@ -1270,21 +1273,9 @@ public class TwilioVideoActivity extends AppCompatActivity implements org.apache
 
     }
     public void initSocket(){
-        JSONObject liveCaptionJson = new JSONObject();
-        try {
-            liveCaptionJson.put("id",roomId);
-            liveCaptionJson.put("msg","start");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
 
         mSocket.on("cc_"+roomId,cc);
         mSocket.on("msg_"+roomId,msg);
-        mSocket.emit("live_caption", liveCaptionJson, new Ack() {
-            @Override
-            public void call(Object... args) {
-
-            }} );
 
     }
 
