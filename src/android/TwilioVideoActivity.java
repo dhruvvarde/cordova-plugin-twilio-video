@@ -355,6 +355,7 @@ public class TwilioVideoActivity extends AppCompatActivity implements org.apache
          */
         if (room != null && room.getState() != Room.State.DISCONNECTED) {
             room.disconnect();
+            mSocket.disconnect();
             disconnectedFromOnDestroy = true;
         }
 
@@ -1070,6 +1071,7 @@ public class TwilioVideoActivity extends AppCompatActivity implements org.apache
          */
         if (room != null) {
             room.disconnect();
+            mSocket.disconnect();
         }
 
         finish();
