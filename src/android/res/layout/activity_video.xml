@@ -53,6 +53,27 @@
 
     </FrameLayout>
 
+    <FrameLayout
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="130dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/txt_caption"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:textColor="#000000"
+            android:padding="3dp"
+            android:layout_gravity="center"
+            android:maxLines="2"
+            android:inputType="textMultiLine"
+            android:background="#FFFFFF"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </FrameLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -85,6 +106,16 @@
             app:fabSize="mini"
             android:src="@drawable/ic_videocam_green_24px" 
             app:backgroundTint="#3e4666" 
+            />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/cc_action_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fabSize="mini"
+            android:layout_margin="@dimen/fab_margin"
+            android:src="@drawable/ic_closed_caption_enabled"
+            app:backgroundTint="#3e4666"
             />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton

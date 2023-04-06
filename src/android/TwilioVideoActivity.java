@@ -52,11 +52,14 @@ import com.twilio.video.VideoTrack;
 import com.twilio.video.VideoView;
 
 import org.apache.cordova.BuildConfig;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -73,6 +76,14 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import static org.apache.cordova.twiliovideo.CallEvent.ATTACHMENT;
+
+import io.socket.client.Ack;
+import io.socket.client.IO;
+import io.socket.client.Manager;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
+import io.socket.engineio.client.transports.Polling;
+import io.socket.engineio.client.transports.WebSocket;
 
 public class TwilioVideoActivity extends AppCompatActivity implements org.apache.cordova.twiliovideo.CallActionObserver, MessageCountListener, ChannelListener {
 
@@ -116,6 +127,7 @@ public class TwilioVideoActivity extends AppCompatActivity implements org.apache
      */
     private VideoView primaryVideoView;
     private VideoView thumbnailVideoView;
+    private Socket mSocket;
 
     /*
      * Android application UI elements
@@ -128,10 +140,11 @@ public class TwilioVideoActivity extends AppCompatActivity implements org.apache
     private FloatingActionButton switchCameraActionFab;
     private FloatingActionButton localVideoActionFab;
     private FloatingActionButton muteActionFab;
+    private FloatingActionButton ccActionFab;
     private FloatingActionButton switchAudioActionFab;
     private FloatingActionButton attachment_fab;
     private AudioManager audioManager;
-    private TextView txtUnreadMessages;
+    private TextView txtUnreadMessages, txtCaption;
     private String participantIdentity;
     private TwilioChatUnreadMessages twilioChatUnreadMessages;
 
@@ -141,6 +154,7 @@ public class TwilioVideoActivity extends AppCompatActivity implements org.apache
     private VideoRenderer localVideoView;
     String imageFilePath;
     private Channel mCurrentChatChannel;
+    private boolean isCCEnable = true;
 
 
     @Override
@@ -160,11 +174,16 @@ public class TwilioVideoActivity extends AppCompatActivity implements org.apache
         connectActionFab = findViewById(FAKE_R.getId("connect_action_fab"));
         chatActionFab = findViewById(FAKE_R.getId("connect_action_chat"));
         txtUnreadMessages = findViewById(FAKE_R.getId("txt_unread_message"));
+        txtCaption = findViewById(FAKE_R.getId("txt_caption"));
         switchCameraActionFab = findViewById(FAKE_R.getId("switch_camera_action_fab"));
         localVideoActionFab = findViewById(FAKE_R.getId("local_video_action_fab"));
         muteActionFab = findViewById(FAKE_R.getId("mute_action_fab"));
+        ccActionFab = findViewById(FAKE_R.getId("cc_action_fab"));
         attachment_fab = findViewById(FAKE_R.getId("attachment_fab"));
         switchAudioActionFab = findViewById(FAKE_R.getId("switch_audio_action_fab"));
+
+        configureSocket();
+
 
         /*
          * Enable changing the volume using the up/down keys during a conversation
@@ -272,7 +291,7 @@ public class TwilioVideoActivity extends AppCompatActivity implements org.apache
         /*
          * If the local video track was released when the app was put in the background, recreate.
          */
-         
+
         txtUnreadMessages.setVisibility(View.GONE);
         twilioChatUnreadMessages = new TwilioChatUnreadMessages(this, roomId, this);
         twilioChatUnreadMessages.fetch(userId);
@@ -435,6 +454,7 @@ public class TwilioVideoActivity extends AppCompatActivity implements org.apache
             switchCameraActionFab.setBackgroundTintList(color);
             localVideoActionFab.setBackgroundTintList(color);
             muteActionFab.setBackgroundTintList(color);
+            ccActionFab.setBackgroundTintList(color);
             switchAudioActionFab.setBackgroundTintList(color);
         }
 
@@ -444,6 +464,8 @@ public class TwilioVideoActivity extends AppCompatActivity implements org.apache
         localVideoActionFab.setOnClickListener(localVideoClickListener());
         muteActionFab.show();
         muteActionFab.setOnClickListener(muteClickListener());
+        ccActionFab.show();
+        ccActionFab.setOnClickListener(ccClickListener());
         attachment_fab.show();
         attachment_fab.setOnClickListener(attachmentClickListener());
         switchAudioActionFab.show();
@@ -923,6 +945,42 @@ public class TwilioVideoActivity extends AppCompatActivity implements org.apache
         };
     }
 
+    private View.OnClickListener ccClickListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /*
+                 * Enable/disable the CC. The results of this operation are
+                 */
+                isCCEnable = !isCCEnable;
+                int icon = isCCEnable ?
+                        FAKE_R.getDrawable("ic_closed_caption_enabled") : FAKE_R.getDrawable("ic_closed_caption_disabled");
+
+                ccActionFab.setImageDrawable(ContextCompat.getDrawable(
+                        TwilioVideoActivity.this, icon));
+
+                if (!isCCEnable){
+                    txtCaption.setVisibility(View.GONE);
+                }else {
+                    txtCaption.setVisibility(View.VISIBLE);
+                }
+
+                JSONObject liveCaptionJson = new JSONObject();
+                try {
+                    liveCaptionJson.put("id",roomId);
+                    liveCaptionJson.put("msg",isCCEnable ? "start" : "stop");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                mSocket.emit("live_caption", liveCaptionJson, new Ack() {
+                    @Override
+                    public void call(Object... args) {
+
+                    }} );
+            }
+        };
+    }
+
     private View.OnClickListener attachmentClickListener() {
         return new View.OnClickListener() {
             @Override
@@ -1178,4 +1236,76 @@ public class TwilioVideoActivity extends AppCompatActivity implements org.apache
     @Override
     public void onSynchronizationChanged(Channel channel) {
     }
+
+    public void configureSocket() {
+        Log.d("configureSocket", "init");
+        IO.Options options = new IO.Options();
+        options.transports = new String[]{WebSocket.NAME};
+        mSocket = IO.socket(URI.create("https://devapsparseserver.iron.fit"),options);
+
+        mSocket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                initSocket();
+            }
+        });
+        mSocket.on(Socket.EVENT_CONNECT_ERROR, (response) ->{
+            Log.d("configureSocket", "EVENT_CONNECT_ERROR: response: " + response);
+        });
+        mSocket.on(Socket.EVENT_DISCONNECT, (response) ->{
+            Log.d("configureSocket", "EVENT_DISCONNECT: response: " + response);
+        });
+
+        mSocket.on(Manager.EVENT_CLOSE, (response) ->{
+            Log.d("configureSocket", "EVENT_CLOSE: response: " + response);
+        });
+        mSocket.on(Manager.EVENT_RECONNECT, (response) ->{
+            Log.d("configureSocket", "EVENT_RECONNECT: response: " + response);
+        });
+        mSocket.on(Manager.EVENT_RECONNECT_FAILED, (response) ->{
+            Log.d("configureSocket", "EVENT_RECONNECT_FAILED: response: " + response);
+        });
+
+        mSocket.connect();
+
+    }
+    public void initSocket(){
+        JSONObject liveCaptionJson = new JSONObject();
+        try {
+            liveCaptionJson.put("id",roomId);
+            liveCaptionJson.put("msg","start");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        mSocket.on("cc_"+roomId,cc);
+        mSocket.on("msg_"+roomId,msg);
+        mSocket.emit("live_caption", liveCaptionJson, new Ack() {
+            @Override
+            public void call(Object... args) {
+
+            }} );
+
+    }
+
+    private Emitter.Listener cc = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+
+        }
+    };
+
+    private Emitter.Listener msg = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    txtCaption.setText(""+args[0]);
+                }
+            });
+
+        }
+    };
+
 }
