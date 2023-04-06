@@ -33,12 +33,15 @@
 
 @property (nonatomic, weak) IBOutlet UIButton *disconnectButton;
 @property (nonatomic, weak) IBOutlet UIButton *micButton;
+@property (nonatomic, weak) IBOutlet UIButton *captionButton;
 @property (nonatomic, weak) IBOutlet UILabel *roomLabel;
 @property (nonatomic, weak) IBOutlet UILabel *roomLine;
 @property (nonatomic, weak) IBOutlet UIButton *cameraSwitchButton;
 @property (nonatomic, weak) IBOutlet UIButton *videoButton;
 @property (nonatomic, weak) IBOutlet UIButton *attachmentButton;
 @property (nonatomic, weak) IBOutlet UIButton *chatButton;
+@property (nonatomic, weak) IBOutlet UILabel *lblCaption;
+@property (nonatomic, weak) IBOutlet UIStackView *stackCaption;
 
 @property(strong,nonatomic) WKWebView *webView;
 @property (strong, nonatomic) NSString *chatURL;
