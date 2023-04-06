@@ -1,4 +1,5 @@
 #import "TwilioVideoViewController.h"
+#import <CordovaPluginsStatic/CordovaPluginsStatic-Swift.h>
 
 // CALL EVENTS
 NSString *const OPENED = @"OPENED";
@@ -23,9 +24,14 @@ NSString *const ATTACHMENT = @"ATTACHMENT";
 
 #pragma mark - UIViewController
 
+-(void)dealloc {
+    NSLog(@"%@:%s", self, __func__);
+
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
-
+    
     [[TwilioVideoManager getInstance] setActionDelegate:self];
 
     [[TwilioVideoManager getInstance] publishEvent: OPENED];
@@ -66,6 +72,88 @@ NSString *const ATTACHMENT = @"ATTACHMENT";
     }
     
     [self setupAlertCtrl];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self addSocketEventObserver];
+}
+
+-(void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
+//    [self removeSocketEventObserver];
+}
+
+#pragma mark - Socket Event Observer
+
+-(void)addSocketEventObserver {
+    NSLog(@"%s", __func__);
+    
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(notifySocketEvent:) name:@"SocketIOManager_ClosedCaptionStatus" object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(notifySocketEvent:) name:@"SocketIOManager_MessageClosedCaption" object:nil];
+}
+
+-(void)removeSocketEventObserver {
+    NSLog(@"%s", __func__);
+    [NSNotificationCenter.defaultCenter removeObserver:self name:@"SocketIOManager_ClosedCaptionStatus" object:nil];
+}
+
+-(void)notifySocketEvent:(NSNotification *)notification {
+    NSLog(@"%s: name: %@, object: %@", __func__, notification.name, notification.object);
+
+    if([notification.name isEqualToString:@"SocketIOManager_MessageClosedCaption"]) {
+        // Display caption text
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if([notification.object isKindOfClass:[NSString class]]) {
+                [self updateCaptionText:notification.object];
+            }
+        });
+    } else if([notification.name isEqualToString:@"SocketIOManager_ClosedCaptionStatus"]) {
+        // Display caption text
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if([notification.object isKindOfClass:[NSString class]]) {
+                BOOL enabled = [notification.object isEqualToString:@"start"];
+                [self updateCaptionStatusUI:enabled];
+            }
+        });
+    }
+}
+
+-(void)updateCaptionStatusWithEnable:(BOOL)enable {
+    NSLog(@"%s: enable: %d", __func__, enable);
+    [SocketIOManager.shared.viewModel updateCaptionStatusWithEnable:enable];
+    [self updateCaptionText:nil];
+    [self updateCaptionStatusUI:enable];
+}
+
+-(void)updateCaptionText:(NSString *)text {
+    NSLog(@"%s: text: %@", __func__, text);
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.lblCaption.text = text;
+    });
+    [self updateCaptionTextUI:self.captionButton.accessibilityViewIsModal];
+}
+
+-(void)updateCaptionStatusUI:(BOOL)enabled {
+    NSLog(@"%s: enabled: %d", __func__, enabled);
+        
+    self.captionButton.accessibilityViewIsModal = enabled;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.captionButton setImage:[UIImage imageNamed:enabled ? @"ic_closed_caption_enabled" : @"ic_closed_caption_disabled"] forState:UIControlStateNormal];
+    });
+    [self updateCaptionTextUI:enabled];
+}
+
+-(void)updateCaptionTextUI:(BOOL)enabled {
+    if(enabled == !self.stackCaption.isHidden) { return; }
+    NSLog(@"%s: enabled: %d", __func__, enabled);
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.stackCaption.hidden = !(enabled && (self.lblCaption.text.length > 0));
+    });
 }
 
 - (void) setupAlertCtrl
@@ -175,6 +263,9 @@ NSString *const ATTACHMENT = @"ATTACHMENT";
     }];
     
     [self getTokenFromUserId:self.userId ChannelName:self.roomName];
+    [SocketIOManager.shared configureWithUserId:self.roomName];
+    [self updateCaptionText:nil];
+    [self updateCaptionStatusWithEnable:NO];
 }
 
 -(void)getTokenFromUserId:(NSString *)userId ChannelName:(NSString *)channelName {
@@ -276,6 +367,12 @@ NSString *const ATTACHMENT = @"ATTACHMENT";
         // If audio not enabled, mic is muted and button crossed out
         [self.micButton setSelected: !self.localAudioTrack.isEnabled];
     }
+}
+
+- (IBAction)captionButtonPressed:(UIButton *)sender {
+    NSLog(@"%s", __func__);
+
+    [self updateCaptionStatusWithEnable:!sender.accessibilityViewIsModal];
 }
 
 - (IBAction)cameraSwitchButtonPressed:(id)sender {
@@ -603,9 +700,8 @@ NSString *const ATTACHMENT = @"ATTACHMENT";
                                  preferredStyle:UIAlertControllerStyleAlert];
 
     //Add Buttons
-
     UIAlertAction* yesButton = [UIAlertAction
-                                actionWithTitle:[self.config i18nAccept]
+                                actionWithTitle: [self.config i18nAccept]
                                 style:UIAlertActionStyleDefault
                                 handler: ^(UIAlertAction * action) {
                                     [self dismiss];
@@ -617,6 +713,7 @@ NSString *const ATTACHMENT = @"ATTACHMENT";
 
 - (void) dismiss {
     [[TwilioVideoManager getInstance] publishEvent: CLOSED];
+    [SocketIOManager.shared clear];
     dispatch_async(dispatch_get_main_queue(), ^{
         [self dismissViewControllerAnimated:NO completion:nil];
     });
