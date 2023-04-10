@@ -30,10 +30,10 @@
         <source-file src="src/ios/TwilioVideoUtils.m" />
         <header-file src="src/ios/Chat/TwilioMessageUtils.h"/>
 
-        <source-file src="src/ios/SocketIOManager/SocketIOManager.swift"/>
-        <source-file src="src/ios/SocketIOManager/Models/SOMessage.swift"/>
-        <source-file src="src/ios/SocketIOManager/ViewModel/SocketIOViewModel.swift"/>
-        <source-file src="src/ios/SocketIOManager/ViewModel/SocketIOManager+Services.swift"/>
+        <header-file src="src/ios/SocketIOManager/SocketIOManager.swift"/>
+        <header-file src="src/ios/SocketIOManager/Models/SOMessage.swift"/>
+        <header-file src="src/ios/SocketIOManager/ViewModel/SocketIOViewModel.swift"/>
+        <header-file src="src/ios/SocketIOManager/ViewModel/SocketIOManager+Services.swift"/>
 
         <resource-file src="src/ios/Resources/TwilioVideo.storyboard" target="Resources/TwilioVideo.storyboard" />
         <resource-file src="src/ios/Resources/end_call.png" target="Resources/end_call.png" />
