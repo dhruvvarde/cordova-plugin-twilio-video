@@ -9,7 +9,7 @@ import Foundation
 import SocketIO
 
 struct SocketSettings {
-    static let socketURL = "https://devapsparseserver.iron.fit"//"http://192.168.3.176:1337" //"https://devapsparseserver.iron.fit"
+    static let socketURL = "https://devapsparseserver.iron.fit"
 }
 
 @objcMembers public class SocketIOManager : NSObject {
@@ -17,10 +17,10 @@ struct SocketSettings {
     public static let shared: SocketIOManager = SocketIOManager()
     
     typealias SocketDidChangeConnectionState = ((SocketClientEvent)->())
-    var parseId: String = "quEfLOQkiS"
+    var parseId: String = ""
     
     enum AppEvent {
-        
+         
         case liveCaption
         case closedCaptionStatus(userId: String)
         case messageClosedCaption(userId: String)

@@ -72,18 +72,17 @@ NSString *const ATTACHMENT = @"ATTACHMENT";
     }
     
     [self setupAlertCtrl];
+    [self addSocketEventObserver];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
-    [self addSocketEventObserver];
 }
 
 -(void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     
-//    [self removeSocketEventObserver];
+    [self removeSocketEventObserver];
 }
 
 #pragma mark - Socket Event Observer
@@ -176,10 +175,7 @@ NSString *const ATTACHMENT = @"ATTACHMENT";
                                                     }];
     UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Cancelar"
                                                            style:UIAlertActionStyleCancel
-                                                         handler:^(UIAlertAction *action)
-                                   {
-                                       [self dismissViewControllerAnimated:YES completion:nil];
-                                   }];
+                                                         handler:nil];
 
 
     //Add action to alertCtrl
@@ -713,6 +709,7 @@ NSString *const ATTACHMENT = @"ATTACHMENT";
 
 - (void) dismiss {
     [[TwilioVideoManager getInstance] publishEvent: CLOSED];
+    [self removeSocketEventObserver];
     [SocketIOManager.shared clear];
     dispatch_async(dispatch_get_main_queue(), ^{
         [self dismissViewControllerAnimated:NO completion:nil];
