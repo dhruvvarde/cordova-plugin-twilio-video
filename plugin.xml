@@ -29,7 +29,8 @@
         <header-file src="src/ios/TwilioVideoUtils.h" />
         <source-file src="src/ios/TwilioVideoUtils.m" />
         <header-file src="src/ios/Chat/TwilioMessageUtils.h"/>
-        
+        <source-file src="src/ios/Chat/TwilioMessageUtils.m"/>
+
         <source-file src="src/ios/SocketIOManager.swift"/>
         <source-file src="src/ios/SOMessage.swift"/>
         <source-file src="src/ios/SocketIOViewModel.swift"/>
