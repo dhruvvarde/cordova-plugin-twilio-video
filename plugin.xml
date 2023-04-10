@@ -36,8 +36,8 @@
         <source-file src="src/ios/SocketIOViewModel.swift"/>
         <source-file src="src/ios/SocketIOManager+Services.swift"/>
         
-        <resource-file src="src/ios/Resources/ic_closed_caption_disabled.svg" target="Resources/ic_closed_caption_disabled.svg" />
-        <resource-file src="src/ios/Resources/ic_closed_caption_enabled.svg" target="Resources/ic_closed_caption_enabled.svg" />
+        <resource-file src="src/ios/Resources/ic_closed_caption_disabled.png" target="Resources/ic_closed_caption_disabled.png" />
+        <resource-file src="src/ios/Resources/ic_closed_caption_enabled.png" target="Resources/ic_closed_caption_enabled.png" />
 
         <resource-file src="src/ios/Resources/TwilioVideo.storyboard" target="Resources/TwilioVideo.storyboard" />
         <resource-file src="src/ios/Resources/end_call.png" target="Resources/end_call.png" />
