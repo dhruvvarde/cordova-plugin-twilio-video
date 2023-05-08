@@ -88,10 +88,7 @@ NSString *const ATTACHMENT = @"ATTACHMENT";
                                                     }];
     UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Cancelar"
                                                            style:UIAlertActionStyleCancel
-                                                         handler:^(UIAlertAction *action)
-                                   {
-                                       [self dismissViewControllerAnimated:YES completion:nil];
-                                   }];
+                                                        handler:nil];
 
 
     //Add action to alertCtrl
