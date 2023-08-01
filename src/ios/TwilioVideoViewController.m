@@ -258,11 +258,11 @@ NSString *const ATTACHMENT = @"ATTACHMENT";
 }
 
 - (IBAction)disconnectButtonPressed:(id)sender {
-    if ([self.config hangUpInApp]) {
+    // if ([self.config hangUpInApp]) {
         [[TwilioVideoManager getInstance] publishEvent: HANG_UP];
-    } else {
+    // } else {
         [self onDisconnect];
-    }
+    // }
 }
 
 - (IBAction)micButtonPressed:(id)sender {

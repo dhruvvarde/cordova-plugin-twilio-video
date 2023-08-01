@@ -836,12 +836,12 @@ public class TwilioVideoActivity extends AppCompatActivity implements org.apache
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (config.isHangUpInApp()) {
+                // if (config.isHangUpInApp()) {
                     // Propagating the event to the web side in order to allow developers to do something else before disconnecting the room
                     publishEvent(org.apache.cordova.twiliovideo.CallEvent.HANG_UP);
-                } else {
+                // } else {
                     onDisconnect();
-                }
+                // }
             }
         };
     }
