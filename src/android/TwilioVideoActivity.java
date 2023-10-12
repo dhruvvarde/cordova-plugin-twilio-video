@@ -107,6 +107,7 @@ public class TwilioVideoActivity extends AppCompatActivity implements org.apache
     private String accessToken;
     private String roomId;
     static String userId;
+    static String chatURL;
     private org.apache.cordova.twiliovideo.CallConfig config;
 
     /*
@@ -192,6 +193,7 @@ public class TwilioVideoActivity extends AppCompatActivity implements org.apache
             String[] separated = this.roomId.split(":");
             roomId = separated[0];
             userId = separated[1];
+            chatURL = separated[2];
         } else {
             userId = "";
         }
@@ -214,7 +216,7 @@ public class TwilioVideoActivity extends AppCompatActivity implements org.apache
         chatActionFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String webUrl = "https://adma.stg.iron.fit/chat/" + userId + "/" + roomId;
+                String webUrl = "https://" + chatURL;
                 Intent i = new Intent(getApplicationContext(), WebViewActivity.class);
                 i.putExtra("webUrl", webUrl);
                 i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
