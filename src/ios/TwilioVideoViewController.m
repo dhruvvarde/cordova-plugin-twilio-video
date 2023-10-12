@@ -154,6 +154,10 @@ NSString *const ATTACHMENT = @"ATTACHMENT";
             if (arr.count > 1) {
                 self.userId = arr[1];
             }
+
+            if (arr.count > 2) {
+                self.chatURL = arr[2];
+            }
         }
     } else {
         self.roomName = room;
@@ -299,7 +303,7 @@ NSString *const ATTACHMENT = @"ATTACHMENT";
 }
 
 - (void) openWebView {
-    self.productURL = [NSString stringWithFormat:@"https://adma.stg.iron.fit/chat/%@/%@", self.userId, self.roomName];
+    self.productURL = [NSString stringWithFormat:@"https://%@", self.chatURL];
     
     NSURL *url = [NSURL URLWithString:self.productURL];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
