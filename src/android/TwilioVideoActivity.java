@@ -1235,7 +1235,7 @@ public class TwilioVideoActivity extends AppCompatActivity implements org.apache
             }
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.iron.sesisp.fileprovider", photoFile);
+                        getPackageName() + ".fileprovider", photoFile);
                 pictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
                         photoURI);
                 startActivityForResult(pictureIntent,
