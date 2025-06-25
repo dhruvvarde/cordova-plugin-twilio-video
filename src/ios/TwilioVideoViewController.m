@@ -513,17 +513,24 @@ NSString *const ATTACHMENT = @"ATTACHMENT";
 
     TVIConnectOptions *connectOptions = [TVIConnectOptions optionsWithToken:self.accessToken
                                                                       block:^(TVIConnectOptionsBuilder * _Nonnull builder) {
-                                                                          builder.roomName = self.roomName;
-                                                                          // Use the local media that we prepared earlier.
-                                                                          builder.audioTracks = self.localAudioTrack ? @[ self.localAudioTrack ] : @[ ];
-                                                                          builder.videoTracks = self.localVideoTrack ? @[ self.localVideoTrack ] : @[ ];
-                                                                      }];
+        builder.roomName = self.roomName;
+
+        // Use the local media that we prepared earlier.
+        builder.audioTracks = self.localAudioTrack ? @[ self.localAudioTrack ] : @[ ];
+        builder.videoTracks = self.localVideoTrack ? @[ self.localVideoTrack ] : @[ ];
+
+        // 🛠️ Set custom SDP semantics and bundle policy
+        builder.configuration = [[TVIConnectOptionsConfiguration alloc] init];
+        builder.configuration.sdpSemantics = TVISDPPlanB;
+        builder.configuration.bundlePolicy = TVIBundlePolicyMaxCompat;
+    }];
 
     // Connect to the Room using the options we provided.
     self.room = [TwilioVideoSDK connectWithOptions:connectOptions delegate:self];
 
     [self logMessage:@"Attempting to connect to room"];
 }
+
 
 - (void)setupRemoteView {
     // Creating `TVIVideoView` programmatically
